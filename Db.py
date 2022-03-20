@@ -16,14 +16,6 @@ engine = create_engine(
 
 engine.connect()
 
-# connection = psycopg2.connect(user="postgres", password="556893765r")
-# connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-# cursor = connection.cursor()
-# sql_create_database = cursor.execute(
-#     f'create database parser')
-# cursor.close()
-# connection.close()
-
 
 class Category(DeclarativeBase):
     __tablename__ = 'Category'
