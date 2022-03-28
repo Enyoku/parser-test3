@@ -17,7 +17,7 @@ class Category(DeclarativeBase):
     __tablename__ = 'Category'
 
     category_id = Column(Integer, primary_key=True)
-    category_name = Column(String(100), nullable=False)
+    category_name = Column(String(100), nullable=False, unique=True)
     gender = Column(Boolean, default=False)
     Product = relationship("Product")
 
