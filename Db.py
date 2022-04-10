@@ -3,12 +3,19 @@ from sqlalchemy import Table, Index, Integer, String, Column, Text, \
     UniqueConstraint, ForeignKeyConstraint, ForeignKey, Numeric, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+import sqlite3
 
 from local_settings import posrtgesql as settings
+# ?=======================================IF USES PostgreSQL=============================================================
 
+# engine = create_engine(
+#     f'postgresql+psycopg2://{settings["username"]}:{settings["password"]}@{settings["host"]}/{settings["database"]}', echo=True,)
 
-engine = create_engine(
-    f'postgresql+psycopg2://{settings["username"]}:{settings["password"]}@{settings["host"]}/{settings["database"]}', echo=True,)
+# ?========================================IF USES SQLite================================================================
+
+engine = create_engine('sqlite:///places.sqlite', echo=True)
+
+# ?======================================================================================================================
 
 DeclarativeBase = declarative_base()
 

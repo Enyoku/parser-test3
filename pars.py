@@ -1,6 +1,14 @@
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from local_settings import headers
+
+from Db import engine
+from sqlalchemy.orm import sessionmaker
+
+
+session = sessionmaker(bind=engine)
+s = session()
 
 
 def get_html(url, params=None):
@@ -33,7 +41,7 @@ def get_content(html):
             discount = ''
         cards.append({
             'brand': item.find('strong', class_='brand-name').get_text(strip=True).replace('/', ''),
-            'title': item.find('span', class_='goods-name').get_text().split('/')[0],
+            'product_name': item.find('span', class_='goods-name').get_text().split('/')[0],
             'price': int(item.find(class_='lower-price').get_text(strip=True).replace('\xa0', '').replace('₽', '')),
             'discount': discount,
             'link': f'https://www.wildberries.ru{item.find("a", class_="product-card__main").get("href")}',
@@ -55,7 +63,12 @@ def parse(url):
         html = get_html(url, params={'sort': 'popular', 'page': page})
         cards.extend(get_content(html))
     print(f'Всего: {len(cards)} позиций')
-    print(cards)
+    save_data(cards)
+
+
+def save_data(data: list):
+    datfr = pd.DataFrame(data)
+    datfr.to_sql('Product', engine, if_exists='replace', index=False)
 
 
 if __name__ == "__main__":
