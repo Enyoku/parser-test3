@@ -2,13 +2,9 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from local_settings import headers
+import datetime
 
 from Db import engine
-from sqlalchemy.orm import sessionmaker
-
-
-session = sessionmaker(bind=engine)
-s = session()
 
 
 def get_html(url, params=None):
@@ -44,6 +40,7 @@ def get_content(html):
             'product_name': item.find('span', class_='goods-name').get_text().split('/')[0],
             'price': int(item.find(class_='lower-price').get_text(strip=True).replace('\xa0', '').replace('₽', '')),
             'discount': discount,
+            'cur_date': datetime.datetime.today(),
             'link': f'https://www.wildberries.ru{item.find("a", class_="product-card__main").get("href")}',
         })
     return cards
@@ -68,8 +65,8 @@ def parse(url):
 
 def save_data(data: list):
     datfr = pd.DataFrame(data)
-    datfr.to_sql('Product', engine, if_exists='replace', index=False)
+    datfr.to_sql('Product', engine, if_exists='append', index=False)
 
 
 if __name__ == "__main__":
-    parse('https://www.wildberries.ru/brands/m65-casual')
+    parse(str(input()))
