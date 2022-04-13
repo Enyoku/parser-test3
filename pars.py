@@ -1,10 +1,11 @@
 import pandas as pd
+from pandas import ExcelWriter
 import requests
 from bs4 import BeautifulSoup
 from local_settings import headers
 import datetime
 
-from Db import engine
+from Db import postgr_engine, sqlite_engine
 
 
 def get_html(url, params=None):
@@ -60,13 +61,26 @@ def parse(url):
         html = get_html(url, params={'sort': 'popular', 'page': page})
         cards.extend(get_content(html))
     print(f'Всего: {len(cards)} позиций')
-    save_data(cards)
+    save_data(input('Выберете способ сохранения данных: '), cards)
 
 
-def save_data(data: list):
+def save_data(var: int, data: list):
     datfr = pd.DataFrame(data)
-    datfr.to_sql('Product', engine, if_exists='append', index=False)
+    if var == "1":
+        print(f'Данные сохранены в БД PostgreSQL')
+        return datfr.to_sql('Product', postgr_engine, if_exists='append', index=False)
+    elif var == "2":
+        print(f'Данные сохранены в БД Sqlite')
+        return datfr.to_sql('Product', sqlite_engine, if_exists='append', index=False)
+    else:
+        newdataframe = datfr.rename(columns={'brand': 'Брэнд', 'product_name': 'Наименование',
+                                             'price': 'Цена',  'discount': 'Скидка',
+                                             'cur_date': 'Дата добавления', 'link': 'Ссылка'})
+        writer = ExcelWriter(f'data.xlsx')
+        newdataframe.to_excel(writer, 'data')
+        writer.save()
+        return 'Данные сохранены в файл "data.xlsx"'
 
 
 if __name__ == "__main__":
-    parse(str(input()))
+    parse(str(input("Введите ссылку на бренд: ")))
